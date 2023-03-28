@@ -1,6 +1,9 @@
+////Alex Olhovskiy////
+
 var mycanvas=document.getElementById('mycanvas');
-mycanvas.width=800;
-mycanvas.height=400;
+mycanvas.height=150;
+mycanvas.width=mycanvas.height*5;
+
 var ctx=mycanvas.getContext('2d');
 
 function MyPoint(x,y)
@@ -49,11 +52,11 @@ function MyParabolaMap()
 	{
 		var temp=10;
 		var step=mycanvas.width/temp;
-		var borderh=mycanvas.height/10;
+		var borderh=mycanvas.height/4;
 		var y=0;
 		for(var i=0;i<(temp+1);i++)
 		{
-			y=borderh+Math.random()*(mycanvas.height-2*borderh);
+			y=2*borderh+Math.random()*borderh;//(mycanvas.height-2*borderh);
 			this.basicPointsArr.push(new MyPoint(i*step,y));
 		}			
 	}
@@ -112,6 +115,27 @@ function MyParabolaMap()
 			}
 
 		}
+		
+		for(var i=0;i<mycanvas.width;i+=50)
+		{
+			ctx.strokeStyle='rgb(0,0,0)';
+			ctx.beginPath();
+			ctx.moveTo(i,mycanvas.height);
+			if(i%100)
+			{
+				ctx.lineTo(i,mycanvas.height-10);
+			}
+			else
+			{
+				ctx.lineTo(i,mycanvas.height-20);
+			}
+			ctx.closePath();
+			ctx.stroke();
+		}
+		
+		ctx.fillStyle='rgb(0,0,0)';
+		ctx.fillText("5 km",50,mycanvas.height-15);
+		
 	}
 }
 
@@ -474,12 +498,12 @@ addEventListener('keydown',function(e){
 	console.log(e.keyCode);
 	switch(e.keyCode)
 	{
-		case 87:myt.BMove(true);break;
-		case 83:myt.BMove(false);break;
-		case 32:myt.Shoot();break;
-		case 65:myt.Move(true);break;
-		case 68:myt.Move(false);break;
-		case 90:myt.condition^=1;console.log(myt.condition);break;
+		case 87:myt.BMove(true);break;//w
+		case 83:myt.BMove(false);break;//s
+		case 32:myt.Shoot();break;//space
+		case 65:myt.Move(true);break;//a
+		case 68:myt.Move(false);break;//d
+		case 90:myt.condition^=1;console.log(myt.condition);break;//z
 		
 	}
 });
