@@ -200,12 +200,12 @@ function MyBoom(x,y)
 	}
 }
 
-
+var G=0.1;
 function MyShell(x,y,a,v,r)
 {
 	this.p=new MyPoint(x,y);
 	this.v=v;
-	this.g=0.1;
+	
 	this.t=0;
 	this.ang=a;
 	this.r=r;
@@ -216,7 +216,7 @@ function MyShell(x,y,a,v,r)
 	{
 		this.t++;
 		this.arr.push(new MyPoint(Math.round(this.p.x+Math.cos(this.ang)*this.v*this.t),
-		Math.round(this.p.y+Math.sin(this.ang)*this.v*this.t+this.g*this.t*this.t/2)));
+		Math.round(this.p.y+Math.sin(this.ang)*this.v*this.t+G*this.t*this.t/2)));
 			
 		if(mypmap.arr[this.arr[this.arr.length-1].y*mycanvas.width+this.arr[this.arr.length-1].x])
 		{
@@ -261,18 +261,15 @@ function MyParabolaTanc(x)
 	this.mstep=5;
 	this.astep=0.1;
 	this.astep2=0.1;
-	this.v=8;
+	this.v=6;
 	this.rr=5;
 	this.flag=false;
 	
 	
 	this.arr.push(new MyPoint(x,this.SetOnMap(x)));
-	this.arr.push(new MyPoint(this.arr[0].x+Math.cos(-Math.PI-this.ang2)*this.r,
-		this.arr[0].y+Math.sin(-Math.PI-this.ang2)*this.r));
-	this.arr.push(new MyPoint(this.arr[0].x+Math.cos(this.ang2)*this.r,
-		this.arr[0].y+Math.sin(this.ang2)*this.r));
-	this.arr.push(new MyPoint(this.arr[0].x+Math.cos(this.ang)*this.R,
-		this.arr[0].y+Math.sin(this.ang)*this.R));
+	this.arr.push(new MyPoint(this.arr[0].x+Math.cos(-Math.PI-this.ang2)*this.r,this.arr[0].y+Math.sin(-Math.PI-this.ang2)*this.r));
+	this.arr.push(new MyPoint(this.arr[0].x+Math.cos(this.ang2)*this.r,this.arr[0].y+Math.sin(this.ang2)*this.r));
+	this.arr.push(new MyPoint(this.arr[0].x+Math.cos(this.ang)*this.R,this.arr[0].y+Math.sin(this.ang)*this.R));
 	
 	this.condition=false;
 	this.mobility=true;
@@ -425,6 +422,73 @@ function MyEnemy(x)
 {
 	MyParabolaTanc.apply(this,arguments);
 	
+	this.CheckDistance=function()
+	{
+		var dis=this.arr[0].x-myt.arr[0].x;
+		var deltaH,t1,t2,ca;
+		if(this.arr[0].y==myt.arr[0].y)
+		{
+			if(Math.abs(dis)>(2*this.v*this.v*Math.cos(Math.PI/4)*Math.sin(Math.PI/4)/a))
+			{
+				if(dis>0)
+				{
+					this.Move(true);
+				}
+				else
+				{
+					this.Move(false);
+				}
+			}
+		}
+		else
+		{
+			if(this.arr[0].y>=myt.arr[0].y)
+			{
+				deltaH=this.arr[0].y-myt.arr[0].y;
+				t1=(-this.v*Math.sin(Math.PI/4)+Math.sqrt(this.v*this.v*Math.pow(Math.sin(Math.PI/4),2)+2*G*deltaH))/G;
+				t2=(-this.v*Math.sin(Math.PI/4)-Math.sqrt(this.v*this.v*Math.pow(Math.sin(Math.PI/4),2)+2*G*deltaH))/G;
+				if(t2>t1)
+				{
+					t1=t2;
+				}
+				if(Math.abs(dis)>(this.v*Math.cos(Math.PI/4)*(t1+(2*this.v*Math.sin(Math.PI/4))/G)))
+				{
+					if(dis>0)
+					{
+						this.Move(true);
+					}
+					else
+					{
+						this.Move(false);
+					}
+				}
+			}
+			else
+			{
+				deltaH=myt.arr[0].y-this.arr[0].y;
+				ca=Math.sqrt((this.v*this.v-2*G*deltaH)/(this.v*this.v*(1+Math.pow(Math.tan(Math.PI/4),2))));
+				t1=(this.v*Math.sin(Math.acos(ca))+Math.sqrt(this.v*this.v*Math.pow(Math.sin(Math.acos(ca)),2)-2*G*deltaH))/G;
+				t2=(this.v*Math.sin(Math.acos(ca))-Math.sqrt(this.v*this.v*Math.pow(Math.sin(Math.acos(ca)),2)-2*G*deltaH))/G;
+				if(t1<t2)
+				{
+					t1=t2;
+				}
+		
+				if(Math.abs(dis)>(this.v*ca*t1))
+				{
+					if(dis>0)
+					{
+						this.Move(true);
+					}
+					else
+					{
+						this.Move(false);
+					}
+				}
+			}
+		}	
+		console.log(deltaH+' '+dis);
+	}
 }
 
 
@@ -479,6 +543,7 @@ function TotalCommFunc()
 			if(!enemyArr[i].flag)
 			{
 				//enemyArr[i].Move();
+				enemyArr[i].CheckDistance();
 				enemyArr[i].Drow();
 			}
 		}
